@@ -17,7 +17,7 @@ bot.on('message', async (msg: any) => {
         await bot.sendMessage(chatId, 'Down shop btn wrote form', {
             reply_markup: {
                 keyboard: [
-                    [{text: 'Create order', web_app: {url: webAppUrl}}]
+                    [{text: 'Create order', web_app: {url: webAppUrl + "/form"}}]
                 ]
             }
         });
@@ -30,4 +30,20 @@ bot.on('message', async (msg: any) => {
                 ]
             }
         });
+
+    if (msg?.web_app_data?.data)
+        try {
+            const data = JSON.parse(msg?.web_app_data?.data)
+
+            await bot.sendMessage(chatId, 'Thank for data!')
+            await bot.sendMessage(chatId, 'Your city:' + data?.city)
+            await bot.sendMessage(chatId, 'Your city:' + data?.street)
+
+            setTimeout(async () => {
+                await bot.sendMessage(chatId,"You take all information in the chat")
+            }, 3000)
+        } catch (e) {
+            console.log(e)
+        }
+
 });
