@@ -53,7 +53,7 @@ bot.on('message', async (msg: any) => {
 
 });
 
-app.post('/web-data', async (req: any, res: any) => {
+app.post('/web-data', async (req, res) => {
     const {queryId, products, totalPrice} = req.body;
 
     try {
@@ -61,16 +61,12 @@ app.post('/web-data', async (req: any, res: any) => {
             type: 'article',
             id: queryId,
             title: "Success order",
-            input_message_content: {message_txt: 'Welcome you are take order on sum:' + totalPrice}
+            input_message_content: {
+                message_text: `Welcome you are take order on sum: ${totalPrice}, ${products.map(item => item.title).join(', ')}`
+            }
         })
-        return res.status(200).json({})
+        return res.status(200).json({});
     } catch (e) {
-        await bot.answerWebAppQuery(queryId, {
-            type: 'article',
-            id: queryId,
-            title: "Failed order",
-            input_message_content: {message_txt: 'Failed order'}
-        })
         return res.status(500).json({})
     }
 })
