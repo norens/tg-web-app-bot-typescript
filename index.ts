@@ -1,4 +1,6 @@
 const TelegramBot = require('node-telegram-bot-api');
+const express = require('express')
+const cors = require('cors')
 
 const dotenv = require('dotenv');
 dotenv.config()
@@ -7,7 +9,10 @@ const token = process.env.TOKEN
 const webAppUrl = process.env.WEB_APP_URL
 
 const bot = new TelegramBot(token, {polling: true});
+const app = express();
 
+app.use(express.json())
+app.use(cors())
 
 bot.on('message', async (msg: any) => {
     const chatId = msg.chat.id;
@@ -40,10 +45,36 @@ bot.on('message', async (msg: any) => {
             await bot.sendMessage(chatId, 'Your city:' + data?.street)
 
             setTimeout(async () => {
-                await bot.sendMessage(chatId,"You take all information in the chat")
+                await bot.sendMessage(chatId, "You take all information in the chat")
             }, 3000)
         } catch (e) {
             console.log(e)
         }
 
 });
+
+app.post('/web-data', async (req: any, res: any) => {
+    const {queryId, products, totalPrice} = req.body;
+
+    try {
+        await bot.answerWebAppQuery(queryId, {
+            type: 'article',
+            id: queryId,
+            title: "Success order",
+            input_message_content: {message_txt: 'Welcome you are take order on sum:' + totalPrice}
+        })
+        return res.status(200).json({})
+    } catch (e) {
+        await bot.answerWebAppQuery(queryId, {
+            type: 'article',
+            id: queryId,
+            title: "Failed order",
+            input_message_content: {message_txt: 'Failed order'}
+        })
+        return res.status(500).json({})
+    }
+})
+
+const PORT = 8000
+
+app.listen(PORT, () => console.log('sever started on PORT:' + PORT))
